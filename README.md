@@ -42,3 +42,33 @@ Initial release with key system, fly, speed, and jump features
 UI Library: [rayfield UI](https://github.com/shlexware/Rayfield)
 
 *Developer: selensky and Nexus team*
+
+
+# 🌟 NEXUS Roblox Hub
+
+Welcome to **NEXUS Hub**, a powerful and easy-to-use Roblox GUI made with the [Rayfield UI Library](https://github.com/shlexware/Rayfield). This hub includes fly hacks, speed, jump modifications, admin tools, auto-detection for supported games, and a key system for added security.
+
+> ✅ Always use responsibly and only in environments where it's allowed.
+
+---
+
+## 🚀 Features
+
+- ✈️ **Fly Script**
+- 🏃‍♂️ **Speed Slider**
+- 🦘 **Jump Power Slider**
+- 🎯 **Shiftlock Enhancer**
+- 🛠️ **Admin Tools** (Infinite Yield, Nameless Admin)
+- 🧠 **Game Auto-Detection** for supported games
+- 🧩 **Tabbed UI** with categories: Hacks, Game Hubs, Admin Tools, and more
+- 🔑 **Key System** to restrict access
+- 📢 **Changelogs** tab for version updates
+
+---
+
+## 🧪 Usage
+
+To use this script in your Roblox game executor:
+
+```lua
+loadstring(game:HttpGet("https://raw.githubusercontent.com/YourUsername/Kalen-Hub/main/MainHub.lua"))()
