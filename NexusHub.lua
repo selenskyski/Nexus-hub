@@ -8,7 +8,7 @@ local Player = game.Players.LocalPlayer local Character = Player.Character or Pl
 
 -- ✅ Hacks Tab local HacksTab = Window:CreateTab("Hacks", 4483362458)
 
-HacksTab:CreateButton({ Name = "Enable Fly", Callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/minceda/Nexus-hub/refs/heads/main/NexusHub.lua"))() end })
+HacksTab:CreateButton({ Name = "Enable Fly", Callback = function() loadstring(game:HttpGet("loadstring(game:HttpGet("https://raw.githubusercontent.com/minceda/Nexus-hub/main/NexusHub.lua"))()"))() end })
 
 HacksTab:CreateSlider({ Name = "Walk Speed", Range = {16, 200}, Increment = 1, Suffix = "Speed", CurrentValue = 16, Callback = function(Value) if Player.Character and Player.Character:FindFirstChildOfClass("Humanoid") then Player.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = Value end end })
 
