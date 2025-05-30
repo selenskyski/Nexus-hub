@@ -71,4 +71,4 @@ Welcome to **NEXUS Hub**, a powerful and easy-to-use Roblox GUI made with the [R
 To use this script in your Roblox game executor:
 
 ```lua
-loadstring(game:HttpGet("https://raw.githubusercontent.com/minceda/Nexus-hub/refs/heads/main/NexusHub.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/minceda/Nexus-hub/main/NexusHub.lua"))()
