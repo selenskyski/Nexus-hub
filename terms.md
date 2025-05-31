@@ -21,7 +21,6 @@ By using Nexus Hub, you agree to the following:
 If you have any concerns, feel free to reach out on our Discord:  
 👉 https://discord.gg/hdTR2r73t8
 
-*before using the script comment "i agree"* 
 ---
 
 **Last Updated:** May 2025
