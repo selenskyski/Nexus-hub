@@ -22,7 +22,7 @@ local Window = Rayfield:CreateWindow({
 		Subtitle = "Join Discord for Key",
 		Note = "https://discord.gg/hdTR2r73t8",
 		FileName = "KalenKeySave",
-		SaveKey = true,
+		SaveKey = false,
 		GrabKeyFromSite = false,
 		Key = { "NEXUS", "ACCESS2025" }
 	}
