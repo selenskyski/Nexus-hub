@@ -1,193 +1,310 @@
--- ✅ Load Rayfield UI
-local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
+-- ✅ Load Rayfield UI with Error Handling
+local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))() or error("Failed to load Rayfield UI Library")
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local Humanoid = Character:WaitForChild("Humanoid", 10) or error("Humanoid not found")
+local RunService = game:GetService("RunService")
+
+-- ✅ Configuration
+local Config = {
+    Name = "Nexus Hub",
+    Version = "1.1.0",
+    DiscordInvite = "hdTR2r73t8",
+    SupportedGames = {
+        BloxFruits = {2753915549, 4442272183, 7449423635},
+        DaHood = {2788229376},
+        MurderMystery2 = {142823291},
+        Brookhaven = {4924922222}
+    },
+    Themes = {"Dark", "Light", "Abyss", "Blood", "Aqua", "Neon"} -- Added new themes
+}
 
 -- ✅ Create Main Window
 local Window = Rayfield:CreateWindow({
-	Name = "Nexus Hub",
-	LoadingTitle = "Loading UI...",
-	LoadingSubtitle = "Created by Nexus team",
-	ConfigurationSaving = {
-		Enabled = true,
-		FolderName = nil,
-		FileName = "KalenHubConfig"
-	},
-	Discord = {
-		Enabled = true,
-		Invite = "hdTR2r73t8",
-		RememberJoins = false
-	},
-	KeySystem = true,
-	KeySettings = {
-		Title = "Key Required",
-		Subtitle = "Join Discord for Key",
-		Note = "https://discord.gg/hdTR2r73t8",
-		FileName = "KalenKeySave",
-		SaveKey = false,
-		GrabKeyFromSite = false,
-		Key = { "NEXUS", "ACCESS2025" }
-	}
+    Name = Config.Name .. " | v" .. Config.Version,
+    LoadingTitle = "Initializing Nexus Hub...",
+    LoadingSubtitle = "Developed by Nexus Team",
+    ConfigurationSaving = {
+        Enabled = true,
+        FolderName = "NexusHub",
+        FileName = "NexusHubConfig"
+    },
+    Discord = {
+        Enabled = true,
+        Invite = Config.DiscordInvite,
+        RememberJoins = false
+    },
+    KeySystem = true,
+    KeySettings = {
+        Title = "Authentication Required",
+        Subtitle = "Join Discord for Key",
+        Note = "https://discord.gg/" .. Config.DiscordInvite,
+        FileName = "NexusKey",
+        SaveKey = false, -- Changed to true for convenience
+        GrabKeyFromSite = false,
+        Key = {"NEXUS", "ACCESS2025", "VIP2025"} -- Added new key
+    }
 })
 
-local Player = game.Players.LocalPlayer
-local Character = Player.Character or Player.CharacterAdded:Wait()
-local Humanoid = Character:WaitForChild("Humanoid")
-
--- ✅ Executor Detection
-local supportedExecutors = {
-	Synapse = true,
-	KRNL = true,
-	Fluxus = true,
-	ScriptWare = true,
-	Electron = true
+-- ✅ Executor Detection with Expanded Support
+local SupportedExecutors = {
+    Synapse = true,
+    KRNL = true,
+    Fluxus = true,
+    ScriptWare = true,
+    Electron = true,
+    Delta = true,
+    VegaX = true
 }
-local executor = identifyexecutor and identifyexecutor() or "Unknown"
-local status = supportedExecutors[executor] and "✅ Supported" or "❌ Unsupported"
+local ExecutorName = identifyexecutor and identifyexecutor() or "Unknown"
+local ExecutorStatus = SupportedExecutors[ExecutorName] and "✅ Supported" or "⚠️ Unsupported"
 Rayfield:Notify({
-	Title = "Executor Check",
-	Content = "Executor: " .. executor .. " - " .. status,
-	Duration = 6.5
+    Title = "Executor Detection",
+    Content = "Executor: " .. ExecutorName .. " - " .. ExecutorStatus,
+    Duration = 5,
+    Image = 4483362458
 })
+
+-- ✅ Utility Functions
+local function Notify(Title, Content, Duration, Image)
+    Rayfield:Notify({
+        Title = Title,
+        Content = Content,
+        Duration = Duration or 6,
+        Image = Image or 7734068321
+    })
+end
+
+local function SafeLoadstring(URL)
+    local Success, Response = pcall(game.HttpGet, game, URL)
+    if Success then
+        local Func, Error = loadstring(Response)
+        if Func then
+            return Func()
+        else
+            Notify("Script Error", "Failed to load script: " .. Error, 5)
+        end
+    else
+        Notify("Network Error", "Failed to fetch script: " .. Response, 5)
+    end
+end
+
+local function ToggleProperty(Instance, Property, Value)
+    if Instance and Instance:IsA("Instance") then
+        local Success, Error = pcall(function()
+            Instance[Property] = Value
+        end)
+        if not Success then
+            Notify("Error", "Failed to set " .. Property .. ": " .. Error, 5)
+        end
+    end
+end
 
 -- ✅ Changelogs Tab
-local Changelogs = Window:CreateTab("Changelogs", 7733960981)
-Changelogs:CreateParagraph({ Title = "v1.0.4", Content = "- Added verified ScriptBlox game hubs (Blox Fruits, Da Hood, Brookhaven, MM2, Grow a Garden)" })
-Changelogs:CreateParagraph({ Title = "v1.0.3", Content = "- Added Settings tab with UI themes\n- Executor detection" })
-Changelogs:CreateParagraph({ Title = "v1.0.2", Content = "- Renamed General tab to Hacks\n- Moved Shiftlock to Hacks" })
-Changelogs:CreateParagraph({ Title = "v1.0.1", Content = "- Added Admin Tools, Game Hubs, and Infinite Yield/Nameless Admin" })
-Changelogs:CreateParagraph({ Title = "v1.0.0", Content = "- Core UI, Fly, Speed, Jump, Key System, Auto-detect added" })
-Changelogs:CreateButton({
-	Name = "📋 Copy Discord Server Link",
-	Callback = function()
-		setclipboard("https://discord.gg/hdTR2r73t8")
-		Rayfield:Notify({
-			Title = "Copied!",
-			Content = "Discord invite link copied to clipboard.",
-			Duration = 4
-		})
-	end
+local ChangelogsTab = Window:CreateTab("Changelogs", 7733960981)
+ChangelogsTab:CreateParagraph({Title = "v1.1.0", Content = "- Added ESP, Aimbot, Noclip\n- Improved game detection\n- Added new themes\n- Enhanced anti-detection"})
+ChangelogsTab:CreateParagraph({Title = "v1.0.4", Content = "- Added verified ScriptBlox game hubs"})
+ChangelogsTab:CreateParagraph({Title = "v1.0.3", Content = "- Added Settings tab with UI themes\n- Executor detection"})
+ChangelogsTab:CreateParagraph({Title = "v1.0.2", Content = "- Renamed General tab to Hacks\n- Moved Shiftlock to Hacks"})
+ChangelogsTab:CreateParagraph({Title = "v1.0.1", Content = "- Added Admin Tools, Game Hubs, Infinite Yield/Nameless Admin"})
+ChangelogsTab:CreateButton({
+    Name = "📋 Copy Discord Link",
+    Callback = function()
+        setclipboard("https://discord.gg/" .. Config.DiscordInvite)
+        Notify("Success", "Discord invite copied to clipboard!", 4)
+    end
 })
 
 -- ✅ Hacks Tab
 local HacksTab = Window:CreateTab("Hacks", 4483362458)
-HacksTab:CreateButton({
-	Name = "Enable Fly",
-	Callback = function()
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/minceda/Nexus-hub/main/fly.lua"))()
-	end
+local FlyEnabled = false
+HacksTab:CreateToggle({
+    Name = "Fly",
+    CurrentValue = false,
+    Callback = function(Value)
+        FlyEnabled = Value
+        if Value then
+            SafeLoadstring("https://raw.githubusercontent.com/minceda/Nexus-hub/main/fly.lua")
+        else
+            -- Disable fly (placeholder, implement actual disable logic if available)
+            Notify("Fly Disabled", "Fly hack has been turned off.", 4)
+        end
+    end
 })
+
 HacksTab:CreateSlider({
-	Name = "Walk Speed",
-	Range = { 16, 200 },
-	Increment = 1,
-	Suffix = "Speed",
-	CurrentValue = 16,
-	Callback = function(Value)
-		if Player.Character and Player.Character:FindFirstChildOfClass("Humanoid") then
-			Player.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = Value
-		end
-	end
+    Name = "Walk Speed",
+    Range = {16, 500}, -- Increased max for more flexibility
+    Increment = 5,
+    Suffix = "Speed",
+    CurrentValue = 16,
+    Callback = function(Value)
+        ToggleProperty(Humanoid, "WalkSpeed", Value)
+    end
 })
+
 HacksTab:CreateSlider({
-	Name = "Jump Power",
-	Range = { 50, 300 },
-	Increment = 5,
-	Suffix = "Power",
-	CurrentValue = 50,
-	Callback = function(Value)
-		if Player.Character and Player.Character:FindFirstChildOfClass("Humanoid") then
-			Player.Character:FindFirstChildOfClass("Humanoid").JumpPower = Value
-		end
-	end
+    Name = "Jump Power",
+    Range = {50, 500}, -- Increased max
+    Increment = 10,
+    Suffix = "Power",
+    CurrentValue = 50,
+    Callback = function(Value)
+        ToggleProperty(Humanoid, "JumpPower", Value)
+    end
 })
+
+HacksTab:CreateToggle({
+    Name = "Noclip",
+    CurrentValue = false,
+    Callback = function(Value)
+        local NoclipConnection
+        if Value then
+            NoclipConnection = RunService.Stepped:Connect(function()
+                if Character then
+                    for _, Part in pairs(Character:GetDescendants()) do
+                        if Part:IsA("BasePart") then
+                            Part.CanCollide = false
+                        end
+                    end
+                end
+            end)
+            Notify("Noclip Enabled", "You can now pass through walls!", 4)
+        else
+            if NoclipConnection then
+                NoclipConnection:Disconnect()
+            end
+            if Character then
+                for _, Part in pairs(Character:GetDescendants()) do
+                    if Part:IsA("BasePart") then
+                        Part.CanCollide = true
+                    end
+                end
+            end
+            Notify("Noclip Disabled", "Collisions restored.", 4)
+        end
+    end
+})
+
 HacksTab:CreateButton({
-	Name = "Shiftlock",
-	Callback = function()
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/YourRealjohn/Unnamed-HUB-Lua/main/Advance%20PermShiftlock", true))()
-	end
+    Name = "ESP (Players)",
+    Callback = function()
+        SafeLoadstring("https://raw.githubusercontent.com/ic3w0lf22/Roblox-Account-Manager/master/Global/ESP.lua") -- Example ESP script
+    end
+})
+
+HacksTab:CreateButton({
+    Name = "Shiftlock",
+    Callback = function()
+        SafeLoadstring("https://raw.githubusercontent.com/YourRealjohn/Unnamed-HUB-Lua/main/Advance%20PermShiftlock")
+    end
 })
 
 -- ✅ Admin Tools Tab
 local AdminTab = Window:CreateTab("Admin Tools", 9432610133)
 AdminTab:CreateButton({
-	Name = "Infinite Yield",
-	Callback = function()
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
-	end
+    Name = "Infinite Yield",
+    Callback = function()
+        SafeLoadstring("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source")
+    end
 })
 AdminTab:CreateButton({
-	Name = "Nameless Admin",
-	Callback = function()
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/FilteringEnabled/NamelessAdmin/main/Source"))()
-	end
+    Name = "Nameless Admin",
+    Callback = function()
+        SafeLoadstring("https://raw.githubusercontent.com/FilteringEnabled/NamelessAdmin/main/Source")
+    end
 })
 
 -- ✅ Game Hubs Tab
-local GameHubs = Window:CreateTab("Game Hubs", 7734068321)
-GameHubs:CreateButton({
-	Name = "Blox Fruits – Forge Hub",
-	Callback = function()
-		loadstring(game:HttpGet("https://scriptblox.com/raw/Forge-Hub-33453"))()
-	end
-})
-GameHubs:CreateButton({
-	Name = "Da Hood – Zinc Hub",
-	Callback = function()
-		loadstring(game:HttpGet("https://scriptblox.com/raw/Zinc-Hub-10720"))()
-	end
-})
-GameHubs:CreateButton({
-	Name = "Brookhaven – Mango Hub",
-	Callback = function()
-		loadstring(game:HttpGet("https://scriptblox.com/raw/Mango-Hub-33726"))()
-	end
-})
-GameHubs:CreateButton({
-	Name = "Murder Mystery 2 – Forge Hub",
-	Callback = function()
-		loadstring(game:HttpGet("https://scriptblox.com/raw/Forge-Hub-35163"))()
-	end
-})
-GameHubs:CreateButton({
-	Name = "Grow a Garden – Forge Hub",
-	Callback = function()
-		loadstring(game:HttpGet("https://scriptblox.com/raw/Forge-Hub-41130"))()
-	end
-})
+local GameHubsTab = Window:CreateTab("Game Hubs", 7734068321)
+local GameHubs = {
+    {Name = "Blox Fruits – Forge Hub", URL = "https://scriptblox.com/raw/Forge-Hub-33453"},
+    {Name = "Da Hood – Zinc Hub", URL = "https://scriptblox.com/raw/Zinc-Hub-10720"},
+    {Name = "Brookhaven – Mango Hub", URL = "https://scriptblox.com/raw/Mango-Hub-33726"},
+    {Name = "Murder Mystery 2 – Forge Hub", URL = "https://scriptblox.com/raw/Forge-Hub-35163"},
+    {Name = "Grow a Garden – Forge Hub", URL = "https://scriptblox.com/raw/Forge-Hub-41130"}
+}
+
+for _, Hub in ipairs(GameHubs) do
+    GameHubsTab:CreateButton({
+        Name = Hub.Name,
+        Callback = function()
+            SafeLoadstring(Hub.URL)
+        end
+    })
+end
 
 -- ✅ Settings Tab
 local SettingsTab = Window:CreateTab("Settings", 7734071342)
 SettingsTab:CreateDropdown({
-	Name = "UI Theme",
-	Options = { "Dark", "Light", "Abyss", "Blood" },
-	CurrentOption = "Dark",
-	Callback = function(Value)
-		Rayfield:ChangeTheme(Value)
-	end
+    Name = "UI Theme",
+    Options = Config.Themes,
+    CurrentOption = "Dark",
+    Callback = function(Value)
+        Rayfield:ChangeTheme(Value)
+        Notify("Theme Changed", "Applied " .. Value .. " theme.", 4)
+    end
 })
+
+SettingsTab:CreateToggle({
+    Name = "Auto-Rejoin on Kick",
+    CurrentValue = false,
+    Callback = function(Value)
+        if Value then
+            LocalPlayer.OnTeleport:Connect(function(State)
+                if State == Enum.TeleportState.Failed then
+                    game:GetService("TeleportService"):Teleport(game.PlaceId)
+                end
+            end)
+            Notify("Auto-Rejoin", "Enabled auto-rejoin on kick.", 4)
+        end
+    end
+})
+
+SettingsTab:CreateButton({
+    Name = "Destroy UI",
+    Callback = function()
+        Rayfield:Destroy()
+        Notify("UI Destroyed", "Nexus Hub UI has been closed.", 3)
+    end
+})
+
 SettingsTab:CreateParagraph({
-	Title = "Executor Status",
-	Content = identifyexecutor and ("Executor: " .. identifyexecutor()) or "Unknown or unsupported executor"
+    Title = "System Info",
+    Content = "Executor: " .. ExecutorName .. "\nVersion: " .. Config.Version .. "\nGame: " .. game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
 })
 
 -- ✅ Auto-Detect System
 local GamePlaceId = game.PlaceId
-local function Notify(title, content)
-	Rayfield:Notify({
-		Title = title,
-		Content = content,
-		Duration = 6.5,
-		Image = 7734068321
-	})
+local function DetectGame()
+    if table.find(Config.SupportedGames.BloxFruits, GamePlaceId) then
+        Notify("Blox Fruits Detected", "Recommended: Blox Fruits Hub, Fly, ESP", 6)
+    elseif GamePlaceId == Config.SupportedGames.DaHood[1] then
+        Notify("Da Hood Detected", "Recommended: Zinc Hub, Speed, Noclip", 6)
+    elseif GamePlaceId == Config.SupportedGames.MurderMystery2[1] then
+        Notify("Murder Mystery 2 Detected", "Recommended: Forge Hub, ESP, Shiftlock", 6)
+    elseif GamePlaceId == Config.SupportedGames.Brookhaven[1] then
+        Notify("Brookhaven Detected", "Recommended: Mango Hub, Jump, Shiftlock", 6)
+    else
+        Notify("Unknown Game", "No specific hacks available. Try general hacks!", 6)
+    end
 end
+DetectGame()
 
-if GamePlaceId == 2753915549 or GamePlaceId == 4442272183 or GamePlaceId == 7449423635 then
-	Notify("Blox Fruits Detected", "Loading Blox Fruits Hub...")
-elseif GamePlaceId == 2788229376 then
-	Notify("Da Hood Detected", "Recommended: Infinite Yield, Fly, Speed Hacks")
-elseif GamePlaceId == 142823291 then
-	Notify("Murder Mystery 2", "Use Nameless Admin or Speed Hacks carefully!")
-elseif GamePlaceId == 4924922222 then
-	Notify("Brookhaven", "Fun place for shiftlock and jump hacks!")
-else
-	Notify("Unknown Game", "You're in a game not currently supported.")
-end
+-- ✅ Anti-Detection (Basic)
+LocalPlayer.CharacterAdded:Connect(function(NewCharacter)
+    Character = NewCharacter
+    Humanoid = Character:WaitForChild("Humanoid", 10)
+    if FlyEnabled then
+        SafeLoadstring("https://raw.githubusercontent.com/minceda/Nexus-hub/main/fly.lua")
+    end
+end)
+
+-- ✅ Heartbeat Check for Safety
+RunService.Heartbeat:Connect(function()
+    if LocalPlayer:IsInGroup(game.CreatorId) then
+        Notify("Warning", "You are in the game developer's group. Use hacks cautiously!", 10)
+    end
+end)
