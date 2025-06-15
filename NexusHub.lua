@@ -80,7 +80,7 @@ local Window = Rayfield:CreateWindow({
         Subtitle = "Join Discord for Key",
         Note = "https://discord.gg/" .. Config.DiscordInvite,
         FileName = "NexusKey",
-        SaveKey = true,
+        SaveKey = false,
         GrabKeyFromSite = false,
         Key = {"NEXUS", "ACCESS2025", "VIP2025"}
     }
