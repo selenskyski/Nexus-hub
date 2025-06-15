@@ -8,26 +8,32 @@ Join our Discord for your access key:
 
 ## 📋 Changelog
 
-**v1.0.2**
+**v1.1.0**
+ Added ESP, Aimbot, Noclip\n- Improved game detection\n- Added new themes\n- Enhanced anti-detection
 
+**v1.0.6**
+Added FPS Counter, ESP, Tracers, Charms, Teleport, Noclip to Hacks tab\n- Auto-update checker added ✅
+
+**v1.0.5**
+Added new Player Info tab that shows Roblox join date, user ID, and username 📋
+
+**v1.0.4**
+Added verified ScriptBlox game hubs (Blox Fruits, Da Hood, Brookhaven, MM2, Grow a Garden)
+
+**v1.0.2**
 General Use tab renamed to Hacks
 
 Shiftlock moved into the Hacks tab
 
 Changelogs moved to the top of the UI
 
-
 **v1.0.1**
-
 Added new tabs: Game Hubs and Admin Tools
 
 Added Infinite Yield and Nameless Admin
 
-
 **v1.0.0**
-
 Initial release with key system, fly, speed, and jump features
-
 
 ---
 
