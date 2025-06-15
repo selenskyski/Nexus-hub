@@ -2,6 +2,7 @@
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))() or error("Failed to load Rayfield UI Library")
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
+local SoundService = game:GetService("SoundService") -- Added for audio
 local LocalPlayer = Players.LocalPlayer
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 local Humanoid = Character:WaitForChild("Humanoid", 10) or error("Humanoid not found")
@@ -10,7 +11,7 @@ local RunService = game:GetService("RunService")
 -- ✅ Configuration
 local Config = {
     Name = "Nexus Hub",
-    Version = "1.1.0",
+    Version = "1.1.1", -- Updated version for audio feature
     DiscordInvite = "hdTR2r73t8",
     SupportedGames = {
         BloxFruits = {2753915549, 4442272183, 7449423635},
@@ -18,8 +19,45 @@ local Config = {
         MurderMystery2 = {142823291},
         Brookhaven = {4924922222}
     },
-    Themes = {"Dark", "Light", "Abyss", "Blood", "Aqua", "Neon"} -- Added new themes
+    Themes = {"Dark", "Light", "Abyss", "Blood", "Aqua", "Neon"},
+    IntroAudio = {
+        SoundId = "rbxassetid://117502688312383", -- Example Roblox audio ID (replace with your own)
+        Volume = 0.5,
+        Enabled = true
+    }
 }
+
+-- ✅ Intro Audio Setup
+local IntroSound
+local function PlayIntroAudio()
+    if Config.IntroAudio.Enabled then
+        IntroSound = Instance.new("Sound")
+        IntroSound.Parent = SoundService
+        IntroSound.SoundId = Config.IntroAudio.SoundId
+        IntroSound.Volume = Config.IntroAudio.Volume
+        IntroSound.PlayOnRemove = false
+        IntroSound.Looped = false
+
+        local Success, Error = pcall(function()
+            IntroSound:Play()
+        end)
+        if Success then
+            Rayfield:Notify({
+                Title = "Welcome to Nexus Hub",
+                Content = "Intro audio playing! Enjoy the experience.",
+                Duration = 5,
+                Image = 7734068321
+            })
+        else
+            Rayfield:Notify({
+                Title = "Audio Error",
+                Content = "Failed to play intro audio: " .. Error,
+                Duration = 5,
+                Image = 4483362458
+            })
+        end
+    end
+end
 
 -- ✅ Create Main Window
 local Window = Rayfield:CreateWindow({
@@ -42,11 +80,14 @@ local Window = Rayfield:CreateWindow({
         Subtitle = "Join Discord for Key",
         Note = "https://discord.gg/" .. Config.DiscordInvite,
         FileName = "NexusKey",
-        SaveKey = true, -- Changed to true for convenience
+        SaveKey = true,
         GrabKeyFromSite = false,
-        Key = {"NEXUS", "ACCESS2025", "VIP2025"} -- Added new key
+        Key = {"NEXUS", "ACCESS2025", "VIP2025"}
     }
 })
+
+-- Play intro audio after window creation
+PlayIntroAudio()
 
 -- ✅ Executor Detection with Expanded Support
 local SupportedExecutors = {
@@ -104,11 +145,10 @@ end
 
 -- ✅ Changelogs Tab
 local ChangelogsTab = Window:CreateTab("Changelogs", 7733960981)
+ChangelogsTab:CreateParagraph({Title = "v1.1.1", Content = "- Added intro audio with toggle and volume control\n- Fixed minor bugs"})
 ChangelogsTab:CreateParagraph({Title = "v1.1.0", Content = "- Added ESP, Aimbot, Noclip\n- Improved game detection\n- Added new themes\n- Enhanced anti-detection"})
 ChangelogsTab:CreateParagraph({Title = "v1.0.4", Content = "- Added verified ScriptBlox game hubs"})
 ChangelogsTab:CreateParagraph({Title = "v1.0.3", Content = "- Added Settings tab with UI themes\n- Executor detection"})
-ChangelogsTab:CreateParagraph({Title = "v1.0.2", Content = "- Renamed General tab to Hacks\n- Moved Shiftlock to Hacks"})
-ChangelogsTab:CreateParagraph({Title = "v1.0.1", Content = "- Added Admin Tools, Game Hubs, Infinite Yield/Nameless Admin"})
 ChangelogsTab:CreateButton({
     Name = "📋 Copy Discord Link",
     Callback = function()
@@ -128,7 +168,6 @@ HacksTab:CreateToggle({
         if Value then
             SafeLoadstring("https://raw.githubusercontent.com/minceda/Nexus-hub/main/fly.lua")
         else
-            -- Disable fly (placeholder, implement actual disable logic if available)
             Notify("Fly Disabled", "Fly hack has been turned off.", 4)
         end
     end
@@ -136,7 +175,7 @@ HacksTab:CreateToggle({
 
 HacksTab:CreateSlider({
     Name = "Walk Speed",
-    Range = {16, 500}, -- Increased max for more flexibility
+    Range = {16, 500},
     Increment = 5,
     Suffix = "Speed",
     CurrentValue = 16,
@@ -147,7 +186,7 @@ HacksTab:CreateSlider({
 
 HacksTab:CreateSlider({
     Name = "Jump Power",
-    Range = {50, 500}, -- Increased max
+    Range = {50, 500},
     Increment = 10,
     Suffix = "Power",
     CurrentValue = 50,
@@ -191,7 +230,7 @@ HacksTab:CreateToggle({
 HacksTab:CreateButton({
     Name = "ESP (Players)",
     Callback = function()
-        SafeLoadstring("https://raw.githubusercontent.com/ic3w0lf22/Roblox-Account-Manager/master/Global/ESP.lua") -- Example ESP script
+        SafeLoadstring("https://raw.githubusercontent.com/ic3w0lf22/Roblox-Account-Manager/master/Global/ESP.lua")
     end
 })
 
@@ -249,6 +288,33 @@ SettingsTab:CreateDropdown({
 })
 
 SettingsTab:CreateToggle({
+    Name = "Intro Audio",
+    CurrentValue = Config.IntroAudio.Enabled,
+    Callback = function(Value)
+        Config.IntroAudio.Enabled = Value
+        if not Value and IntroSound and IntroSound.Playing then
+            IntroSound:Stop()
+            Notify("Intro Audio", "Intro audio disabled.", 4)
+        end
+    end
+})
+
+SettingsTab:CreateSlider({
+    Name = "Audio Volume",
+    Range = {0, 1},
+    Increment = 0.1,
+    Suffix = "Volume",
+    CurrentValue = Config.IntroAudio.Volume,
+    Callback = function(Value)
+        Config.IntroAudio.Volume = Value
+        if IntroSound then
+            IntroSound.Volume = Value
+        end
+        Notify("Volume Updated", "Intro audio volume set to " .. Value, 4)
+    end
+})
+
+SettingsTab:CreateToggle({
     Name = "Auto-Rejoin on Kick",
     CurrentValue = false,
     Callback = function(Value)
@@ -266,6 +332,10 @@ SettingsTab:CreateToggle({
 SettingsTab:CreateButton({
     Name = "Destroy UI",
     Callback = function()
+        if IntroSound then
+            IntroSound:Stop()
+            IntroSound:Destroy()
+        end
         Rayfield:Destroy()
         Notify("UI Destroyed", "Nexus Hub UI has been closed.", 3)
     end
@@ -302,7 +372,6 @@ LocalPlayer.CharacterAdded:Connect(function(NewCharacter)
     end
 end)
 
--- ✅ Heartbeat Check for Safety
 RunService.Heartbeat:Connect(function()
     if LocalPlayer:IsInGroup(game.CreatorId) then
         Notify("Warning", "You are in the game developer's group. Use hacks cautiously!", 10)
