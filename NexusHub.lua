@@ -2,16 +2,19 @@
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))() or error("Failed to load Rayfield UI Library")
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
-local SoundService = game:GetService("SoundService") -- Added for audio
+local SoundService = game:GetService("SoundService")
 local LocalPlayer = Players.LocalPlayer
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 local Humanoid = Character:WaitForChild("Humanoid", 10) or error("Humanoid not found")
 local RunService = game:GetService("RunService")
+local TeleportService = game:GetService("TeleportService")
+local UserInputService = game:GetService("UserInputService")
+local StarterGui = game:GetService("StarterGui")
 
 -- ✅ Configuration
 local Config = {
     Name = "Nexus Hub",
-    Version = "1.1.1", -- Updated version for audio feature
+    Version = "1.2.0", -- Updated version for new features
     DiscordInvite = "hdTR2r73t8",
     SupportedGames = {
         BloxFruits = {2753915549, 4442272183, 7449423635},
@@ -21,9 +24,17 @@ local Config = {
     },
     Themes = {"Dark", "Light", "Abyss", "Blood", "Aqua", "Neon"},
     IntroAudio = {
-        SoundId = "rbxassetid://117502688312383", -- Example Roblox audio ID (replace with your own)
+        SoundId = "rbxassetid://117502688312383", -- Replace with your own audio ID
         Volume = 0.5,
         Enabled = true
+    },
+    Icons = {
+        Changelogs = 7733960981,
+        Hacks = 4483362458,
+        AdminTools = 9432610133,
+        GameHubs = 7734068321,
+        Settings = 7734071342,
+        ChatLogger = 7733964719
     }
 }
 
@@ -46,14 +57,14 @@ local function PlayIntroAudio()
                 Title = "Welcome to Nexus Hub",
                 Content = "Intro audio playing! Enjoy the experience.",
                 Duration = 5,
-                Image = 7734068321
+                Image = Config.Icons.Hacks
             })
         else
             Rayfield:Notify({
                 Title = "Audio Error",
                 Content = "Failed to play intro audio: " .. Error,
                 Duration = 5,
-                Image = 4483362458
+                Image = Config.Icons.Settings
             })
         end
     end
@@ -89,7 +100,7 @@ local Window = Rayfield:CreateWindow({
 -- Play intro audio after window creation
 PlayIntroAudio()
 
--- ✅ Executor Detection with Expanded Support
+-- ✅ Executor Detection
 local SupportedExecutors = {
     Synapse = true,
     KRNL = true,
@@ -105,7 +116,7 @@ Rayfield:Notify({
     Title = "Executor Detection",
     Content = "Executor: " .. ExecutorName .. " - " .. ExecutorStatus,
     Duration = 5,
-    Image = 4483362458
+    Image = Config.Icons.Settings
 })
 
 -- ✅ Utility Functions
@@ -114,7 +125,7 @@ local function Notify(Title, Content, Duration, Image)
         Title = Title,
         Content = Content,
         Duration = Duration or 6,
-        Image = Image or 7734068321
+        Image = Image or Config.Icons.Hacks
     })
 end
 
@@ -125,10 +136,10 @@ local function SafeLoadstring(URL)
         if Func then
             return Func()
         else
-            Notify("Script Error", "Failed to load script: " .. Error, 5)
+            Notify("Script Error", "Failed to load script: " .. Error, 5, Config.Icons.Settings)
         end
     else
-        Notify("Network Error", "Failed to fetch script: " .. Response, 5)
+        Notify("Network Error", "Failed to fetch script: " .. Response, 5, Config.Icons.Settings)
     end
 end
 
@@ -138,17 +149,16 @@ local function ToggleProperty(Instance, Property, Value)
             Instance[Property] = Value
         end)
         if not Success then
-            Notify("Error", "Failed to set " .. Property .. ": " .. Error, 5)
+            Notify("Error", "Failed to set " .. Property .. ": " .. Error, 5, Config.Icons.Settings)
         end
     end
 end
 
 -- ✅ Changelogs Tab
-local ChangelogsTab = Window:CreateTab("Changelogs", 7733960981)
+local ChangelogsTab = Window:CreateTab("Changelogs", Config.Icons.Changelogs)
+ChangelogsTab:CreateParagraph({Title = "v1.2.0", Content = "- Added Server Hop, Rejoin, FPS Unlocker, Chat Logger, Ping & FPS Overlay\n- Consistent tab logos\n- Improved error handling"})
 ChangelogsTab:CreateParagraph({Title = "v1.1.1", Content = "- Added intro audio with toggle and volume control\n- Fixed minor bugs"})
 ChangelogsTab:CreateParagraph({Title = "v1.1.0", Content = "- Added ESP, Aimbot, Noclip\n- Improved game detection\n- Added new themes\n- Enhanced anti-detection"})
-ChangelogsTab:CreateParagraph({Title = "v1.0.4", Content = "- Added verified ScriptBlox game hubs"})
-ChangelogsTab:CreateParagraph({Title = "v1.0.3", Content = "- Added Settings tab with UI themes\n- Executor detection"})
 ChangelogsTab:CreateButton({
     Name = "📋 Copy Discord Link",
     Callback = function()
@@ -158,7 +168,7 @@ ChangelogsTab:CreateButton({
 })
 
 -- ✅ Hacks Tab
-local HacksTab = Window:CreateTab("Hacks", 4483362458)
+local HacksTab = Window:CreateTab("Hacks", Config.Icons.Hacks)
 local FlyEnabled = false
 HacksTab:CreateToggle({
     Name = "Fly",
@@ -241,8 +251,80 @@ HacksTab:CreateButton({
     end
 })
 
+HacksTab:CreateButton({
+    Name = "Server Hop",
+    Callback = function()
+        local Success, Error = pcall(function()
+            TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId)
+        end)
+        if Success then
+            Notify("Server Hop", "Teleporting to a new server...", 4)
+        else
+            Notify("Server Hop Failed", "Error: " .. Error, 5, Config.Icons.Settings)
+        end
+    end
+})
+
+HacksTab:CreateButton({
+    Name = "Rejoin Server",
+    Callback = function()
+        local Success, Error = pcall(function()
+            TeleportService:Teleport(game.PlaceId)
+        end)
+        if Success then
+            Notify("Rejoin Server", "Rejoining the current server...", 4)
+        else
+            Notify("Rejoin Failed", "Error: " .. Error, 5, Config.Icons.Settings)
+        end
+    end
+})
+
+HacksTab:CreateButton({
+    Name = "FPS Unlocker (Client)",
+    Callback = function()
+        local Success, Error = pcall(function()
+            setfpscap(0) -- Removes FPS cap
+        end)
+        if Success then
+            Notify("FPS Unlocker", "FPS cap removed (client-side).", 4)
+        else
+            Notify("FPS Unlocker Failed", "Error: " .. Error, 5, Config.Icons.Settings)
+        end
+    end
+})
+
+-- ✅ Chat Logger Tab
+local ChatLoggerTab = Window:CreateTab("Chat Logger", Config.Icons.ChatLogger)
+local ChatMessages = {}
+local ChatParagraph = ChatLoggerTab:CreateParagraph({
+    Title = "Chat Log",
+    Content = "No messages yet."
+})
+
+local function UpdateChatLog()
+    local LogText = table.concat(ChatMessages, "\n")
+    ChatParagraph:Set({Title = "Chat Log", Content = LogText or "No messages yet."})
+end
+
+Players.PlayerChatting:Connect(function(Player, Message)
+    table.insert(ChatMessages, "[" .. Player.Name .. "]: " .. Message)
+    if #ChatMessages > 50 then
+        table.remove(ChatMessages, 1) -- Keep only the last 50 messages
+    end
+    UpdateChatLog()
+end)
+
+ChatLoggerTab:CreateButton({
+    Name = "Clear Chat Log",
+    Callback = function()
+        ChatMessages = {}
+        UpdateChatLog()
+        Notify("Chat Log Cleared", "All logged messages have been cleared.", 4)
+    end
+})
+
 -- ✅ Admin Tools Tab
-local AdminTab = Window:CreateTab("Admin Tools", 9432610133)
+local AdminTab = Window:CreateTab("Admin Tools", Config.Icons.AdminTools)
 AdminTab:CreateButton({
     Name = "Infinite Yield",
     Callback = function()
@@ -257,7 +339,7 @@ AdminTab:CreateButton({
 })
 
 -- ✅ Game Hubs Tab
-local GameHubsTab = Window:CreateTab("Game Hubs", 7734068321)
+local GameHubsTab = Window:CreateTab("Game Hubs", Config.Icons.GameHubs)
 local GameHubs = {
     {Name = "Blox Fruits – Forge Hub", URL = "https://scriptblox.com/raw/Forge-Hub-33453"},
     {Name = "Da Hood – Zinc Hub", URL = "https://scriptblox.com/raw/Zinc-Hub-10720"},
@@ -276,7 +358,7 @@ for _, Hub in ipairs(GameHubs) do
 end
 
 -- ✅ Settings Tab
-local SettingsTab = Window:CreateTab("Settings", 7734071342)
+local SettingsTab = Window:CreateTab("Settings", Config.Icons.Settings)
 SettingsTab:CreateDropdown({
     Name = "UI Theme",
     Options = Config.Themes,
@@ -321,10 +403,62 @@ SettingsTab:CreateToggle({
         if Value then
             LocalPlayer.OnTeleport:Connect(function(State)
                 if State == Enum.TeleportState.Failed then
-                    game:GetService("TeleportService"):Teleport(game.PlaceId)
+                    TeleportService:Teleport(game.PlaceId)
                 end
             end)
             Notify("Auto-Rejoin", "Enabled auto-rejoin on kick.", 4)
+        end
+    end
+})
+
+-- ✅ Ping & FPS Overlay
+local OverlayEnabled = false
+local OverlayGui
+SettingsTab:CreateToggle({
+    Name = "Ping & FPS Overlay",
+    CurrentValue = false,
+    Callback = function(Value)
+        OverlayEnabled = Value
+        if Value then
+            OverlayGui = Instance.new("ScreenGui")
+            OverlayGui.Parent = StarterGui
+            OverlayGui.IgnoreGuiInset = true
+
+            local Frame = Instance.new("Frame")
+            Frame.Parent = OverlayGui
+            Frame.Size = UDim2.new(0, 150, 0, 50)
+            Frame.Position = UDim2.new(0, 10, 0, 10)
+            Frame.BackgroundTransparency = 0.5
+            Frame.BackgroundColor3 = Color3.new(0, 0, 0)
+
+            local PingLabel = Instance.new("TextLabel")
+            PingLabel.Parent = Frame
+            PingLabel.Size = UDim2.new(1, 0, 0.5, 0)
+            PingLabel.BackgroundTransparency = 1
+            PingLabel.TextColor3 = Color3.new(1, 1, 1)
+            PingLabel.Text = "Ping: Calculating..."
+
+            local FPSLabel = Instance.new("TextLabel")
+            FPSLabel.Parent = Frame
+            FPSLabel.Size = UDim2.new(1, 0, 0.5, 0)
+            FPSLabel.Position = UDim2.new(0, 0, 0.5, 0)
+            FPSLabel.BackgroundTransparency = 1
+            FPSLabel.TextColor3 = Color3.new(1, 1, 1)
+            FPSLabel.Text = "FPS: Calculating..."
+
+            RunService.RenderStepped:Connect(function(Delta)
+                if OverlayEnabled then
+                    local Ping = math.floor(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue())
+                    PingLabel.Text = "Ping: " .. Ping .. " ms"
+                    FPSLabel.Text = "FPS: " .. math.floor(1 / Delta)
+                end
+            end)
+            Notify("Overlay Enabled", "Ping & FPS overlay enabled.", 4)
+        else
+            if OverlayGui then
+                OverlayGui:Destroy()
+            end
+            Notify("Overlay Disabled", "Ping & FPS overlay disabled.", 4)
         end
     end
 })
@@ -335,6 +469,9 @@ SettingsTab:CreateButton({
         if IntroSound then
             IntroSound:Stop()
             IntroSound:Destroy()
+        end
+        if OverlayGui then
+            OverlayGui:Destroy()
         end
         Rayfield:Destroy()
         Notify("UI Destroyed", "Nexus Hub UI has been closed.", 3)
@@ -374,6 +511,6 @@ end)
 
 RunService.Heartbeat:Connect(function()
     if LocalPlayer:IsInGroup(game.CreatorId) then
-        Notify("Warning", "You are in the game developer's group. Use hacks cautiously!", 10)
+        Notify("Warning", "You are in the game developer's group. Use hacks cautiously!", 10, Config.Icons.Settings)
     end
 end)
