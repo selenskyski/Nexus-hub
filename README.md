@@ -1,3 +1,11 @@
+# Nexus is no longer being continued if wanting to have the project please message me
+
+
+
+
+
+
+
 ## 🔑 Key System
 
 Join our Discord for your access key:
