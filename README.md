@@ -1,4 +1,4 @@
-# Nexus is no longer being continued if wanting to have the project please message me
+# Nexus is no longer being continued if wanting to have the project please message me (open source)
 
 
 
